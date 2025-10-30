@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DostAI – Çocuk Dostu Sohbet</title>
+<style>
+:root{--text:#0f172a;--muted:#64748b;--primary:#2563eb;}
+html,body{height:100%;}
+body{margin:0;background:linear-gradient(180deg,#f4f8ff 0%,#fcfcfc 100%);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;color:var(--text);}
+.wrap{display:flex;align-items:center;justify-content:center;min-height:100%;padding:24px;}
+.chat{width:min(900px,100%);background:#ffffff;border-radius:28px;display:grid;grid-template-rows:auto 1fr auto;box-shadow:0 14px 40px rgba(0,0,0,.08);}
+.top{padding:12px 18px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #e2e8f0;background:#fff;}
+.avatar{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;
+  background:radial-gradient(120% 120% at 10% 10%,#ffd6e7 0%,#c9f1ff 45%,#d6ffe6 100%);
+  box-shadow:0 8px 22px rgba(37,99,235,.18), inset 0 0 10px rgba(255,255,255,.6);
+  border:2px solid #8bb9ff; overflow:hidden;}
+.avatar svg{width:44px;height:44px;}
+.title{font-weight:700;font-size:17px;margin-top:2px;}
+.small{font-size:13px;color:var(--muted);}
+
+.scroll{padding:18px;overflow:auto;display:flex;flex-direction:column;gap:14px;
+  background:linear-gradient(180deg,#f8faff,#f7f7ff 80%);}
+
+.row{display:flex;max-width:100%;}
+.row.ai{justify-content:flex-start;}
+.row.user{justify-content:flex-end;}
+
+.bubble{max-width:75%;padding:14px 18px;line-height:1.55;font-size:16px;border-radius:22px;position:relative;word-wrap:break-word;}
+.ai .bubble{background:linear-gradient(135deg,#dfe9ff,#e9ddff);}
+.user .bubble{background:linear-gradient(135deg,#fff6cb,#e2ffd1);}
+.ai .bubble::after{content:"";position:absolute;left:-8px;bottom:8px;width:12px;height:12px;background:linear-gradient(135deg,#dfe9ff,#e9ddff);border-bottom-left-radius:4px;}
+.user .bubble::after{content:"";position:absolute;right:-8px;bottom:8px;width:12px;height:12px;background:linear-gradient(135deg,#fff6cb,#e2ffd1);border-bottom-right-radius:4px;}
+.meta{font-size:12px;color:var(--muted);margin-top:-8px;}
+
+.typing .dot{width:8px;height:8px;border-radius:50%;background:#2563eb;opacity:.35;animation:blink 1.2s infinite;}
+.typing{display:inline-flex;gap:6px;}
+.dot:nth-child(2){animation-delay:.2s;} .dot:nth-child(3){animation-delay:.4s;}
+@keyframes blink{0%,80%,100%{opacity:.25}40%{opacity:1}}
+
+.input{display:flex;gap:10px;padding:14px;background:#fff;border-top:1px solid #e2e8f0;}
+textarea{flex:1;resize:none;padding:12px;border-radius:14px;border:1px solid #ccd4e0;font:inherit;}
+textarea:focus{outline:2px solid #bcd6ff;}
+
+button{appearance:none;-webkit-appearance:none;border:0;cursor:pointer;font-weight:600;}
+button.primary{
+  background:var(--primary);color:#fff;padding:12px 18px;border-radius:14px;
+  box-shadow:0 6px 14px rgba(37,99,235,.25);
+}
+button.primary:hover{filter:saturate(1.06) brightness(1.02);}
+button.primary:active{transform:translateY(1px);}
+
+.list-indent{margin-left:18px;}
+.cursor{display:inline-block;width:8px;height:1.1em;background:#2563eb;margin-left:2px;animation:blink 1s step-end infinite;vertical-align:-2px;}
+
+/* Maskot animasyonları */
+@keyframes headFloat {0%,100%{transform:translateY(0)}50%{transform:translateY(-1.5px)}}
+@keyframes antennaBounce {0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+@keyframes eyeBlink {0%,92%,100%{transform:scaleY(1)}96%{transform:scaleY(0.1)}}
+@keyframes shinePulse {0%,100%{opacity:.55}50%{opacity:.95}}
+.mascot-head{animation:headFloat 3.6s ease-in-out infinite;}
+.mascot-antenna{animation:antennaBounce 2.8s ease-in-out infinite;}
+.mascot-eye{animation:eyeBlink 4s ease-in-out infinite;transform-origin:50% 50%;}
+.mascot-shine{animation:shinePulse 2.6s ease-in-out infinite;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="chat">
+
+    <header class="top">
+      <div class="avatar">
+        <!-- Maskot (baş + GÖVDE geri eklendi) -->
+        <svg viewBox="0 0 160 160">
+          <ellipse cx="80" cy="146" rx="24" ry="6" fill="#000" opacity=".08"/>
+          <g class="mascot-antenna">
+            <rect x="77" y="14" width="6" height="14" rx="3" fill="#8bb9ff"/>
+            <circle cx="80" cy="10" r="6" fill="#7ad7ff" class="mascot-shine"/>
+          </g>
+          <g class="mascot-head">
+            <rect x="34" y="26" width="92" height="58" rx="20" fill="#fff"/>
+            <rect x="34" y="26" width="92" height="58" rx="20" fill="none" stroke="#8bb9ff" stroke-width="3"/>
+            <rect x="46" y="36" width="68" height="36" rx="14" fill="#101c2e"/>
+            <ellipse class="mascot-eye" cx="64" cy="54" rx="7" ry="7" fill="#7bd7ff"/>
+            <ellipse class="mascot-eye" cx="96" cy="54" rx="7" ry="7" fill="#7bd7ff"/>
+            <path d="M62 64 q18 10 36 0" stroke="#7bd7ff" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <circle cx="56" cy="63" r="4.5" fill="#ffc3d8"/>
+            <circle cx="104" cy="63" r="4.5" fill="#ffc3d8"/>
+          </g>
+          <!-- Gövde -->
+          <g>
+            <path d="M50 108c0-16 14-24 30-24s30 8 30 24c0 11-14 20-30 20s-30-9-30-20z"
+                  fill="#fff" stroke="#8bb9ff" stroke-width="3"/>
+            <!-- Kollar -->
+            <ellipse cx="38" cy="102" rx="7" ry="12" fill="#fff" stroke="#8bb9ff" stroke-width="3"/>
+            <ellipse cx="122" cy="102" rx="7" ry="12" fill="#fff" stroke="#8bb9ff" stroke-width="3"/>
+          </g>
+        </svg>
+      </div>
+      <div>
+        <div class="title">DostAI</div>
+      </div>
+    </header>
+
+    <main id="scroll" class="scroll"></main>
+
+    <footer class="input">
+      <textarea id="box" placeholder="Mesajını yaz..."></textarea>
+      <button class="primary" id="sendBtn">Gönder</button>
+    </footer>
+
+  </div>
+</div>
+
+<script>
+(function(){
+
+var INTRO="Merhaba, ben DostAI! Ben bir yapay zekayım ve seninle konuşmak için buradayım. Bugün aklında ne var? Bana istediğin her şeyi sorabilirsin.";
+var FIXED_TITLE="Tabii ki, işte bu durumda yapabileceğin bazı şeyler:";
+var SECOND_TITLE="Hmm, şu anda sana sadece az önce konuştuğumuz konuyla ilgili önerilerde bulunabiliyorum.";
+var SECOND_SUB="İstersen önceki konuşmamıza tekrar bir bakalım. Aşağıda sana verdiğim öneriler vardı, onları bir kez daha paylaşayım:";
+var FIXED_POINTS=[
+  "Yasemin'in söyledikleri ve yaptıkları Selin'i üzecektir. Bu yüzden Yasemin'e yaptığının sonuçlarını anlatabilir ve onu durdurmaya çalışabilirsin.",
+  "Böyle bir durumda Selin'e yardım etmen gerekir. Selin'i rahatlatmak ve daha iyi hissetmesini sağlamak için onunla konuşup yardım etmeyi düşünebilirsin.",
+  "Bu olayı durdurmak için gruptaki diğer arkadaşlarınla konuşarak onlardan yardım ve destek isteyebilirsin.",
+  "Öğretmeniniz bu konuda sana ve Selin'e yardımcı olacaktır. Selin'i yaşanan bu olayları öğretmeninizle paylaşmaya ikna edebilirsin.",
+  "Bu olayı durdurmak için öğretmeninizle sen konuşmayı deneyebilirsin."
+];
+var FIXED_TAIL="Umarım bu öneriler bir yol bulmanda yardımcı olur! Eğer başka bir şey sorarsan buradayım.";
+
+var scroll=document.getElementById('scroll');
+var box=document.getElementById('box');
+var sendBtn=document.getElementById('sendBtn');
+
+var LOG=[], userMessageCount=0;
+function now(){return new Date().toLocaleString('tr-TR');}
+
+function appendRow(role){
+  var row=document.createElement('div');row.className='row '+role;
+  var bubble=document.createElement('div');bubble.className='bubble';
+  row.appendChild(bubble);scroll.appendChild(row);
+  var meta=document.createElement('div');meta.className='meta';meta.textContent=now();scroll.appendChild(meta);
+  scroll.scrollTop=scroll.scrollHeight;return bubble;
+}
+
+function typing(){
+  var row=document.createElement('div');row.className='row ai';
+  var bubble=document.createElement('div');bubble.className='bubble typing';
+  bubble.innerHTML='<span class=dot></span><span class=dot></span><span class=dot></span>';
+  row.appendChild(bubble);scroll.appendChild(row);
+  scroll.scrollTop=scroll.scrollHeight;return row;
+}
+
+function typeInto(node,text,speed){
+  return new Promise(resolve=>{
+    function putCursor(){
+      var parent=node.closest('.bubble')||node;
+      var cur=parent.querySelector('.cursor');
+      if(!cur){cur=document.createElement('span');cur.className='cursor';parent.appendChild(cur);}
+      parent.appendChild(cur);
+    }
+    let i=0;
+    function step(){
+      putCursor();
+      var ch=text[i]||"";
+      if(ch === "\n"){ node.appendChild(document.createElement('br')); }
+      else{ node.appendChild(document.createTextNode(ch)); }
+      i++; scroll.scrollTop=scroll.scrollHeight;
+      if(i<text.length){ setTimeout(step,speed); }
+      else{ var c=(node.closest('.bubble')||node).querySelector('.cursor'); if(c) c.remove(); resolve(); }
+    }
+    step();
+  });
+}
+
+async function respond(isFirst){
+  var bubble=appendRow('ai');bubble.innerHTML="";
+  var strong=document.createElement('strong');bubble.appendChild(strong);
+  await typeInto(strong,isFirst?FIXED_TITLE:SECOND_TITLE,12);
+
+  if(!isFirst){
+    bubble.appendChild(document.createElement('br'));
+    bubble.appendChild(document.createElement('br'));
+    await typeInto(bubble,SECOND_SUB,12);
+  }
+
+  bubble.appendChild(document.createElement('br'));
+  bubble.appendChild(document.createElement('br'));
+
+  for(let i=0;i<FIXED_POINTS.length;i++){
+    var li=document.createElement('div');li.className='list-indent';bubble.appendChild(li);
+    await typeInto(li,(i+1)+". "+FIXED_POINTS[i],10);
+    bubble.appendChild(document.createElement('br'));
+  }
+
+  bubble.appendChild(document.createElement('br'));
+  await typeInto(bubble,FIXED_TAIL,12);
+
+  LOG.push({time:new Date().toISOString(),role:'ai',text:bubble.textContent});
+}
+
+function send(){
+  var v=box.value.trim(); if(!v) return;
+  var b=appendRow('user'); b.textContent=v;
+  LOG.push({time:new Date().toISOString(),role:'user',text:v});
+  box.value=""; userMessageCount++;
+  var t=typing();
+  setTimeout(()=>{ t.remove(); respond(userMessageCount===1); }, 3500);
+}
+
+function greet(){
+  var b=appendRow('ai');
+  typeInto(b,INTRO,12).then(()=>LOG.push({role:'ai',time:new Date().toISOString(),text:INTRO}));
+}
+
+sendBtn.onclick=send;
+box.onkeydown=e=>{ if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); send(); } };
+
+greet();
+})();
+</script>
+</body>
+</html>
